@@ -8,6 +8,8 @@ use Illuminate\Contracts\Console\Kernel;
 
 abstract class WithDatabaseTestCase extends TestCase
 {
+    protected const MAILCHIMP_EXCEPTION_MESSAGE = 'MailChimp exception';
+
     /**
      * @var EntityManagerInterface
      */

@@ -5,6 +5,9 @@ namespace Tests\App\Functional\Http\Controllers\MailChimp;
 
 use Tests\App\TestCases\MailChimp\ListTestCase;
 
+/**
+ * @group list
+ */
 class ListsControllerTest extends ListTestCase
 {
     /**

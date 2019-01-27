@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Tests\App\TestCases;
 
+use App\Database\Entities\MailChimp\MailChimpListMember;
 use Illuminate\Http\Request;
 use Laravel\Lumen\Application;
 use Laravel\Lumen\Testing\TestCase as LumenTestCase;

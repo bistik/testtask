@@ -12,7 +12,6 @@ use Tests\App\TestCases\WithDatabaseTestCase;
 
 abstract class ListTestCase extends WithDatabaseTestCase
 {
-    protected const MAILCHIMP_EXCEPTION_MESSAGE = 'MailChimp exception';
 
     /**
      * @var array
@@ -68,10 +67,12 @@ abstract class ListTestCase extends WithDatabaseTestCase
         /** @var Mailchimp $mailChimp */
         $mailChimp = $this->app->make(Mailchimp::class);
 
+        /*
         foreach ($this->createdListIds as $listId) {
             // Delete list on MailChimp after test
             $mailChimp->delete(\sprintf('lists/%s', $listId));
         }
+        */
 
         parent::tearDown();
     }
@@ -109,23 +110,6 @@ abstract class ListTestCase extends WithDatabaseTestCase
     }
 
     /**
-     * Create MailChimp list into database.
-     *
-     * @param array $data
-     *
-     * @return \App\Database\Entities\MailChimp\MailChimpList
-     */
-    protected function createList(array $data): MailChimpList
-    {
-        $list = new MailChimpList($data);
-
-        $this->entityManager->persist($list);
-        $this->entityManager->flush();
-
-        return $list;
-    }
-
-    /**
      * Returns mock of MailChimp to trow exception when requesting their API.
      *
      * @param string $method
@@ -147,5 +131,22 @@ abstract class ListTestCase extends WithDatabaseTestCase
             ->andThrow(new \Exception(self::MAILCHIMP_EXCEPTION_MESSAGE));
 
         return $mailChimp;
+    }
+
+    /**
+     * Create MailChimp list into database.
+     *
+     * @param array $data
+     *
+     * @return \App\Database\Entities\MailChimp\MailChimpList
+     */
+    protected function createList(array $data): MailChimpList
+    {
+        $list = new MailChimpList($data);
+
+        $this->entityManager->persist($list);
+        $this->entityManager->flush();
+
+        return $list;
     }
 }

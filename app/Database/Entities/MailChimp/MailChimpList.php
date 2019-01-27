@@ -49,7 +49,7 @@ class MailChimpList extends MailChimpEntity
     private $mailChimpId;
 
     /**
-     * @ORM\Column(name="name", type="string")
+     * OOORM\Column(name="name", type="string")
      *
      * @var string
      */

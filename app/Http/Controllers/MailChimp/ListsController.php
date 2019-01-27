@@ -8,8 +8,8 @@ use App\Http\Controllers\Controller;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Mailchimp\Mailchimp;
+use Illuminate\Http\Request;
 
 class ListsController extends Controller
 {
