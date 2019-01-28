@@ -32,4 +32,15 @@ abstract class TestCase extends LumenTestCase
     {
         return new Request($data ?? []);
     }
+
+    protected function postRequest(?array $data = null): Request
+    {
+        $request = new Request();
+        $request->setMethod('POST');
+        if ($data) {
+            $request->request->add($data);
+        }
+
+        return $request;
+    }
 }

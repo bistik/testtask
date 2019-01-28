@@ -18,7 +18,7 @@ class MembersControllerTest extends MembersTestCase {
      */
     public function testCreateMemberSuccessfully(): void
     {
-        static::$memberData['email_address'] = sprintf('foobar+test%d@loyaltycorp.com', time());
+        static::$memberData['email_address'] = sprintf('foobar+test%d@gmail.com', time());
         $this->post('/mailchimp/lists/' . static::$listId . '/members', static::$memberData);
 
         $content = json_decode($this->response->getContent(), true);
@@ -187,5 +187,24 @@ class MembersControllerTest extends MembersTestCase {
             self::assertEquals('Updated lname', $content['merge_fields']['LNAME']);
             self::assertEquals('unsubscribed', $content['status']);
         }
+    }
+
+    /**
+     * Test create member on invalid list
+     *
+     * @group members-create
+     * @group members-create-no-list
+     */
+    public function testInvalidListCreateMember(): void
+    {
+        $this->post('/mailchimp/lists/list-does-not-exist/members', [
+            'email_address' => 'erick+test-not-list@yahoo.com',
+            'status' => 'subscribed',
+        ]);
+        $content = json_decode($this->response->getContent(), true);
+
+        $this->assertResponseStatus(404);
+        self::assertArrayHasKey('message', $content);
+        self::assertEquals('MailChimpList[list-does-not-exist] not found', $content['message']);
     }
 }

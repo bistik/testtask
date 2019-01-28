@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Tests\App\TestCases\MailChimp;
 
+use App\Database\Entities\MailChimp\MailChimpList;
 use App\Database\Entities\MailChimp\MailChimpListMember;
 use Illuminate\Http\JsonResponse;
 use Mailchimp\Mailchimp;
@@ -10,12 +11,12 @@ use Mockery;
 use Mockery\MockInterface;
 use Tests\App\TestCases\WithDatabaseTestCase;
 
-abstract class MembersTestCase extends WithDatabaseTestCase {
+abstract class MembersTestCase extends WithDatabaseTestCase
+{
 
     /**
      * @var array
      */
-
     protected static $memberData = [
         'email_address' => 'erick+test@loyaltycorp.com',
         'status' => 'subscribed',
@@ -43,8 +44,7 @@ abstract class MembersTestCase extends WithDatabaseTestCase {
         parent::setUp();
 
         $mailChimp = $this->app->make(Mailchimp::class);
-
-        $response = $mailChimp->post('lists', [
+        $data = [
             'name' => 'Coding test',
             'permission_reminder' => 'Coding exam.',
             'email_type_option' => false,
@@ -68,9 +68,14 @@ abstract class MembersTestCase extends WithDatabaseTestCase {
             'use_archive_bar' => false,
             'notify_on_subscribe' => 'notify@loyaltycorp.com.au',
             'notify_on_unsubscribe' => 'notify@loyaltycorp.com.au'
-        ]);
+        ];
+        $response = $mailChimp->post('lists', $data);
 
         self::$listId = $response->get('id');
+        $list = new MailChimpList($data);
+        $list->setMailChimpId(self::$listId);
+        $this->entityManager->persist($list);
+        $this->entityManager->flush();
     }
 
     /**
@@ -107,6 +112,13 @@ abstract class MembersTestCase extends WithDatabaseTestCase {
         self::assertEquals(self::MAILCHIMP_EXCEPTION_MESSAGE, $content['message']);
     }
 
+    protected function assertMailChimpSuccessResponse(JsonResponse $response): void
+    {
+        $content = \json_decode($response->content(), true);
+
+        self::assertEquals(200, $response->getStatusCode());
+    }
+
     /**
      * Returns mock of MailChimp to throw exception when requesting their API.
      *
@@ -127,6 +139,26 @@ abstract class MembersTestCase extends WithDatabaseTestCase {
                 return !empty($method) && (null === $options || \is_array($options));
             })
             ->andThrow(new \Exception('MailChimp exception'));
+
+        return $mailChimp;
+    }
+
+    protected function mockMailChimpMember($method): MockInterface
+    {
+        $mailChimp = Mockery::mock(MailChimp::class);
+        $response = Mockery::mock(JsonResponse::class);
+
+        $response
+            ->shouldReceive('get')
+            ->andReturn('');
+
+        $mailChimp
+            ->shouldReceive($method)
+            ->once()
+            ->withArgs(function (string $method, ?array $options = null) {
+                return !empty($method) && (null === $options || \is_array($options));
+            })
+            ->andReturn($response);
 
         return $mailChimp;
     }
